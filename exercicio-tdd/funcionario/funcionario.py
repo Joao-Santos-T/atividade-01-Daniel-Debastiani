@@ -28,26 +28,28 @@ class Funcionario:
     valor_comissao: float = 100.0
     contratos_fechados: int = 0
 
-    def calcular_salario_bruto(self) -> float:
-        """Calcula o salário bruto do funcionário.
-        
-        Returns:
-            float: Salário bruto calculado baseado nas horas trabalhadas
-        """
-        raise NotImplementedError()
+    def __post_init__(self):
+        if self.salario_hora < 0 or self.horas_trabalhadas < 0 or self.valor_comissao < 0 or self.custo_empregador < 0:
+            raise ValueError("Nenhum valor pode ser negativo.")
 
-    def calcular_custo_total(self) -> float:
-        """Calcula o custo total do funcionário para a empresa.
-        
-        Returns:
-            float: Custo total (salário + custos do empregador)
-        """
-        raise NotImplementedError()
+    def calcular_salario_base(self) -> float:
+        """Calcula o salário base até o limite de 220h (sem considerar horas extras)."""
+        horas_normais = min(self.horas_trabalhadas, 220)
+        return self.salario_hora * horas_normais
+
+    def calcular_horas_extras(self) -> float:
+        """Calcula o valor das horas extras, com adicional de 50%."""
+        horas_extras = max(self.horas_trabalhadas - 220, 0)
+        valor_hora_extra = self.salario_hora * 1.5
+        return horas_extras * valor_hora_extra
 
     def calcular_comissao(self) -> float:
-        """Calcula o valor total da comissão do funcionário.
-        
-        Returns:
-            float: Valor total da comissão baseado nos contratos fechados
-        """
-        raise NotImplementedError() 
+        if self.tem_comissao:
+            return self.valor_comissao * self.contratos_fechados
+        return 0.0
+
+    def calcular_custo_total(self) -> float:
+        salario_base = self.calcular_salario_base()
+        horas_extras = self.calcular_horas_extras()
+        comissao = self.calcular_comissao()
+        return salario_base + horas_extras + comissao + self.custo_empregador

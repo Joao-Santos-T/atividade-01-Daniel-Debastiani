@@ -29,21 +29,26 @@ class Aluno:
             self.faltas = {}
 
     def adicionar_nota(self, disciplina: str, nota: float) -> None:
-        """Adiciona uma nota para uma disciplina específica."""
-        raise NotImplementedError()
+        if disciplina not in self.notas:
+            self.notas[disciplina] = []
+        self.notas[disciplina].append(nota)
 
     def calcular_media(self, disciplina: str) -> float:
-        """Calcula a média das notas de uma disciplina."""
-        raise NotImplementedError()
+        if disciplina not in self.notas or not self.notas[disciplina]:
+            return 0.0
+        return sum(self.notas[disciplina]) / len(self.notas[disciplina])
 
     def verificar_aprovacao(self, disciplina: str) -> bool:
-        """Verifica se o aluno está aprovado em uma disciplina."""
-        raise NotImplementedError()
+        media = self.calcular_media(disciplina)
+        return media >= 6.0
 
     def registrar_falta(self, disciplina: str) -> None:
-        """Registra uma falta em uma disciplina."""
-        raise NotImplementedError()
+        if disciplina not in self.faltas:
+            self.faltas[disciplina] = 0
+        self.faltas[disciplina] += 1
 
     def calcular_frequencia(self, disciplina: str, total_aulas: int) -> float:
-        """Calcula a frequência do aluno em uma disciplina."""
-        raise NotImplementedError() 
+        if total_aulas == 0:
+            return 100.0
+        faltas = self.faltas.get(disciplina, 0)
+        return ((total_aulas - faltas) / total_aulas) * 100
